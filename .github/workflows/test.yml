@@ -19,6 +19,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: '11'
+          distribution: 'oracle'
 
       - name: Grant execution permission for gradlew
         run: chmod +x gradlew
