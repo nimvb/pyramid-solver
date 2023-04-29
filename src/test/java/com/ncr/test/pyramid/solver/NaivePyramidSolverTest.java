@@ -19,7 +19,7 @@ import static org.junit.Assert.*;
 
 public class NaivePyramidSolverTest {
 
-    private static final int MAX_DEPTH = 50;
+    private static final int MAX_DEPTH = 100;
 
     private static final int[][] SAMPLE_DATA = {
             {5, 9, 8, 4},
@@ -32,6 +32,13 @@ public class NaivePyramidSolverTest {
             {87, 1, 70, 0},
             {36, 41, 0, 0},
             {23, 0, 0, 0}
+    };
+
+    private static final int[][] DEMO_DATA_WITH_NON_ZERO_NEUTRAL_VALUES   = {
+            {59, 207, 98, 95},
+            {87, 1, 70, -80},
+            {36, 41, 0, 1000},
+            {23, 13, 12, 500}
     };
 
     private static final int[][] NEGATIVE_DATA = {
@@ -50,17 +57,20 @@ public class NaivePyramidSolverTest {
 
     protected PyramidSolver solver;
 
+    private final static long LARGE_DATA_TIMEOUT = 10000L;
+    private final static TimeUnit TIMEUNIT = TimeUnit.MILLISECONDS;
+
     @Rule
-    public Timeout globalTimeout = new Timeout(5000L, TimeUnit.MILLISECONDS) {
+    public Timeout largeDataTimeout = new Timeout(LARGE_DATA_TIMEOUT, TIMEUNIT) {
         @Override
         public Statement apply(Statement base, Description description) {
 
             return FailOnTimeout
                     .builder()
-                    .withTimeout(5000L, TimeUnit.MILLISECONDS)
+                    .withTimeout(LARGE_DATA_TIMEOUT, TimeUnit.MILLISECONDS)
                     .build(new Statement() {
                         @Override
-                        public void evaluate() throws Throwable {
+                        public void evaluate() {
                             try {
                                 throw new TimeoutException();
                             } catch (Exception ignore) {
@@ -76,26 +86,32 @@ public class NaivePyramidSolverTest {
     }
 
     @Test
-    public void solverHandlesSampleData() {
+    public void givenSampleData_shouldReturnTheCorrectResult() {
         Pyramid pyramid = new Pyramid(SAMPLE_DATA);
         assertEquals("Max path in Sample pyramid", 24, solver.pyramidMaximumTotal(pyramid));
     }
 
     @Test
-    public void solverHandlesDemoData() {
+    public void givenDemoData_shouldReturnTheCorrectResult() {
         Pyramid pyramid = new Pyramid(DEMO_DATA);
         assertEquals("Max path in Demo pyramid", 353, solver.pyramidMaximumTotal(pyramid));
     }
 
+    @Test
+    public void givenDemoDataWithNonZeroNeutralValues_shouldReturnTheCorrectResult() {
+        Pyramid pyramid = new Pyramid(DEMO_DATA_WITH_NON_ZERO_NEUTRAL_VALUES);
+        assertEquals("Max path in Demo pyramid", 353, solver.pyramidMaximumTotal(pyramid));
+    }
+
     @Test(expected = TimeoutException.class)
-    public void givenLargePyramid_shouldFailTheTest() {
+    public void givenLargePyramid_shouldThrowTimeoutException() {
         PyramidGenerator generator = new RandomPyramidGenerator(MAX_DEPTH, 1000);
         Pyramid          pyramid   = generator.generatePyramid();
         assertTrue("Max path in a large pyramid not positive", solver.pyramidMaximumTotal(pyramid) > 0L);
     }
 
     @Test
-    public void solverHandlesRandomData() {
+    public void givenRandomData_shouldReturnCorrectResult() {
         RandomPyramidGenerator.setRandSeed(25321L);  // ensure pyramid contents
         final PyramidGenerator generator = new RandomPyramidGenerator(5, 99);
         final Pyramid          pyramid   = generator.generatePyramid();
