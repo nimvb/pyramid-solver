@@ -1,4 +1,5 @@
-name: Test
+name: Test Workflow
+
 on:
   push:
     branches:
@@ -8,23 +9,14 @@ on:
       - 'main'
 
 jobs:
-  test:
+  init:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Setup JDK
-        uses: actions/setup-java@v3
-        with:
-          java-version: '11'
-          distribution: 'corretto'
-          cache: 'gradle'
-
-      - name: Grant execution permission for gradlew
-        run: chmod +x gradlew
-
-      - name: Test
-        continue-on-error: true
-        run: ./gradlew test
+  test:
+    needs: [init]
+    uses: ./.github/workflows/test-workflow.yml
+    with:
+      abort-on-failure: false
