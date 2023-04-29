@@ -1,0 +1,39 @@
+name: Test Reusable Workflow
+on:
+  workflow_call:
+    inputs:
+      abort-on-failure:
+        required: true
+        type: boolean
+        description: 'flag to indicate whether to abort the work flow if the tests failed or not'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'corretto'
+          cache: 'gradle'
+
+      - name: Aborting on test failure
+        run: echo "${{inputs.abort-on-failure}}"
+
+      - name: Grant execution permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Running tests...
+        continue-on-error: false
+        run: ./gradlew test
+        if: ${{ (inputs.abort-on-failure == true)  }}
+
+      - name: Running tests...(continue on any tests failure)
+        continue-on-error: true
+        run: ./gradlew test
+        if: ${{ (inputs.abort-on-failure == false) }}
