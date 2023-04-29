@@ -1,4 +1,5 @@
-name: Build
+name: Build Workflow
+
 on:
   push:
     branches:
@@ -8,22 +9,14 @@ on:
       - 'main'
 
 jobs:
-  build:
+  init:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Setup JDK
-        uses: actions/setup-java@v3
-        with:
-          java-version: '11'
-          distribution: 'corretto'
-          cache: 'gradle'
-
-      - name: Grant execution permission for gradlew
-        run: chmod +x gradlew
-
-      - name: Build with Gradle
-        run: ./gradlew build -x test
+  build:
+    needs: [init]
+    uses: ./.github/workflows/build-workflow.yml
+    with:
+      skip-tests: true
