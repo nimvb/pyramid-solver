@@ -1,0 +1,39 @@
+name: Build Reusable Workflow
+on:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      skip-tests:
+        required: true
+        type: boolean
+        description: 'flag to indicate whether to run the tests or not'
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'corretto'
+          cache: 'gradle'
+
+      - name: Skip tests
+        run: echo "${{inputs.skip-tests}}"
+
+      - name: Grant execution permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle (Skipping tests...)
+        run: ./gradlew build -x test
+        if: ${{ inputs.skip-tests == true  }}
+
+      - name: Build with Gradle
+        run: ./gradlew build
+        if: ${{ inputs.skip-tests == false }}
