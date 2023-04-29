@@ -8,11 +8,15 @@ repositories {
 }
 
 dependencies {
-    testImplementation( group:'junit', name:'junit', version:'4.13.2')
-    testImplementation( group:'org.hamcrest', name:'hamcrest', version:'2.2')
-    testImplementation( group:'org.hamcrest', name:'hamcrest-core', version:'2.2')
+    testImplementation(group: 'junit', name: 'junit', version: '4.13.2')
+    testImplementation(group: 'org.hamcrest', name: 'hamcrest', version: '2.2')
+    testImplementation(group: 'org.hamcrest', name: 'hamcrest-core', version: '2.2')
 }
 
 application {
     mainClassName = 'com.ncr.test.pyramid.OurProgram'
+}
+
+test {
+    maxHeapSize = "2g"
 }
